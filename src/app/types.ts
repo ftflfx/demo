@@ -7,6 +7,7 @@ export type Fact = {
   permalink: string;
 };
 
-export type GetFactLanguageProps = 'en' | 'de';
+// refactored out
+// export type GetFactLanguageProps = 'en' | 'de';
 
 export type Language = 'en' | 'de';

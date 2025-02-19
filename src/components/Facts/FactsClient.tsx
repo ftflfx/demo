@@ -8,31 +8,41 @@ import { Button } from '@/components/ui/button';
 import PopoverComponent from '@/components/Facts/Popover';
 
 function FactsClient({ initialFact }: { initialFact: Fact }) {
-  const [currentFact, setCurrentFact] = useState<Fact>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('currentFact');
-      return saved ? JSON.parse(saved) : initialFact;
-    }
-    return initialFact;
-  });
-  const [favorites, setFavorites] = useState<Fact[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('favorites');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-  const [showFavorites, setShowFavorites] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [currentFact, setCurrentFact] = useState<Fact>(initialFact);
+  const [favorites, setFavorites] = useState<Fact[]>([]);
+  const [showFavorites, setShowFavorites] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [language, setLanguage] = useState<Language>('en');
+  const [isClient, setIsClient] = useState<boolean>(false);
+
+  // Solution to localStorage hydration error
+  useEffect(() => {
+    setIsClient(true);
+
+    // Load data from localStorage after initial render
+    const savedFact = localStorage.getItem('currentFact');
+    if (savedFact) {
+      setCurrentFact(JSON.parse(savedFact));
+    }
+
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // Save to localStorage when state changes
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem('currentFact', JSON.stringify(currentFact));
+    }
+  }, [currentFact, isClient]);
 
   useEffect(() => {
-    localStorage.setItem('currentFact', JSON.stringify(currentFact));
-  }, [currentFact]);
-
-  useEffect(() => {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-  }, [favorites]);
+    if (isClient) {
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+  }, [favorites, isClient]);
 
   const handleNewFact = async () => {
     setIsLoading(true);
@@ -123,7 +133,7 @@ function FactsClient({ initialFact }: { initialFact: Fact }) {
       ) : (
         <div className="space-y-4">
           <div className="p-4 border rounded-lg flex justify-between items-start">
-            <p>{currentFact.text}</p>
+            <p>{currentFact?.text}</p>
             <Button
               variant="ghost"
               size="icon"

@@ -1,8 +1,8 @@
 'use server';
 
-import { GetFactLanguageProps } from '@/app/types';
+import { Language } from '@/app/types';
 
-export async function getFact(lang: GetFactLanguageProps) {
+export async function getFact(lang: Language) {
   try {
     const response = await fetch(
       `https://uselessfacts.jsph.pl/api/v2/facts/random?language=${lang}`
